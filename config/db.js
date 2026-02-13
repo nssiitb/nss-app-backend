@@ -5,7 +5,7 @@ const pool = mysql.createPool({
   user: 'root',
   password: '',
   database: 'nssapp',
-});
+}).promise();
 
 // ------------ TESTING THE CONNECTION -------------
 const testConnection = async () => {
@@ -19,4 +19,4 @@ const testConnection = async () => {
 testConnection();
 // -------------------------------------------------
 
-module.exports = pool.promise();
+module.exports = pool;

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require("../middleware/auth");
 
 const loginUser = require("../controllers/login");
 const registerUser = require("../controllers/register");
@@ -16,9 +17,10 @@ const attByRoll = require("../controllers/attByRoll");
 
 router.post('/login', loginUser);
 router.post('/register', registerUser);
+router.use(auth);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);
-router.post('/allEvents', allEvents);
+router.get('/allEvents', allEvents);
 router.post('/address', saveAddress);
 router.post('/attendance', markAttendance);
 router.get('/getTodayAA', getTodayAA);

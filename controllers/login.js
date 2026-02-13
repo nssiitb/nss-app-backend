@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const db = require("../config/db")
 
 const loginUser = async (req, res) => {
@@ -39,11 +42,25 @@ const loginUser = async (req, res) => {
                     email: rows[0].email,
                     isaa: isaa,
                 };
+                // return res.status(201).json({
+                //     userData: userData,
+                //     message: "Login successful",
+                //     status: true
+                // });
+                // JWT FEATURE: create token
+                const token = jwt.sign(
+                    { roll: rows[0].roll, isaa: isaa },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "7d" }
+                );
+
                 return res.status(201).json({
+                    token: token,
                     userData: userData,
                     message: "Login successful",
                     status: true
                 });
+
             }
             // wrong password 
             else {
