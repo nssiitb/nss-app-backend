@@ -20,7 +20,7 @@ router.post('/register', registerUser);
 router.use(auth);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);
-router.post('/allEvents', allEvents);
+router.get('/allEvents', allEvents);
 router.post('/address', saveAddress);
 router.post('/attendance', markAttendance);
 router.get('/getTodayAA', getTodayAA);
