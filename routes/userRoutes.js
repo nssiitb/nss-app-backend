@@ -17,7 +17,7 @@ const attByRoll = require("../controllers/attByRoll");
 
 router.post('/login', loginUser);
 router.post('/register', registerUser);
-// router.use(auth);
+router.use(auth);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);
 router.get('/allEvents', allEvents);
