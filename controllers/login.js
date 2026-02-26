@@ -1,84 +1,85 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 
-const db = require("../config/db")
+const db = require("../config/db");
 
 const loginUser = async (req, res) => {
+  try {
+    const data = req.body;
+    const isaa = data.isaa;
 
-    try {
+    console.log(isaa);
 
-        const data = req.body;
-        const isaa = data.isaa;
-
-        console.log(isaa);
-
-        if (!isaa) {
-            table = "users";
-        }
-        else {
-            table = "admins"
-        }
-
-        const [rows] = await db.execute(`SELECT * FROM ${table} WHERE roll = ?`, [data.roll]);
-
-        // no user exists
-        if (rows.length == 0) {
-            return res.status(400).json({
-                userData: null,
-                message: "No user exists",
-                status: false
-            });
-        }
-        // user exists
-        else if (rows.length == 1) {
-            const userPassword = rows[0].password;
-            // correct password
-            if (data.password == userPassword) {
-                const userData = {
-                    roll: rows[0].roll,
-                    name: rows[0].name,
-                    mobile: rows[0].mobile,
-                    dept: rows[0].dept,
-                    email: rows[0].email,
-                    isaa: isaa,
-                };
-                // return res.status(201).json({
-                //     userData: userData,
-                //     message: "Login successful",
-                //     status: true
-                // });
-                // JWT FEATURE: create token
-                const token = jwt.sign(
-                    { roll: rows[0].roll, isaa: isaa },
-                    process.env.JWT_SECRET,
-                    { expiresIn: "7d" }
-                );
-
-                return res.status(201).json({
-                    token: token,
-                    userData: userData,
-                    message: "Login successful",
-                    status: true
-                });
-
-            }
-            // wrong password 
-            else {
-                return res.status(201).json({
-                    userData: null,
-                    message: "Wrong password",
-                    status: false
-                });
-            }
-        }
+    if (!isaa) {
+      table = "users";
+    } else {
+      table = "admins";
     }
-    catch {
-        return res.status(500).json({
-            userData: null,
-            message: "Internal Server Error",
-            status: false
-        })
+
+    const [rows] = await db.execute(`SELECT * FROM ${table} WHERE roll = ?`, [
+      data.roll,
+    ]);
+
+    // no user exists
+    if (rows.length == 0) {
+      return res.status(400).json({
+        userData: null,
+        message: "No user exists",
+        status: false,
+      });
     }
-}
+    // user exists
+    else if (rows.length == 1) {
+      const userPassword = rows[0].password;
+
+      // correct password using bcrypt
+      const passwordMatch = await bcrypt.compare(data.password, userPassword);
+
+      if (passwordMatch) {
+        const userData = {
+          roll: rows[0].roll,
+          name: rows[0].name,
+          mobile: rows[0].mobile,
+          dept: rows[0].dept,
+          email: rows[0].email,
+          isaa: isaa,
+        };
+        // return res.status(201).json({
+        //     userData: userData,
+        //     message: "Login successful",
+        //     status: true
+        // });
+        // JWT FEATURE: create token
+        const token = jwt.sign(
+          { roll: rows[0].roll, isaa: isaa },
+          process.env.JWT_SECRET,
+          { expiresIn: "7d" },
+        );
+
+        return res.status(201).json({
+          token: token,
+          userData: userData,
+          message: "Login successful",
+          status: true,
+        });
+      }
+      // wrong password
+      else {
+        return res.status(201).json({
+          userData: null,
+          message: "Wrong password",
+          status: false,
+        });
+      }
+    }
+  } catch {
+    return res.status(500).json({
+      userData: null,
+      message: "Internal Server Error",
+      status: false,
+    });
+  }
+};
 
 module.exports = loginUser;

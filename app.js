@@ -1,8 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
+const initDatabase = require("./models/init");
 
 const app = express();
+
+// Initialize the database tables if they do not exist
+initDatabase();
 
 app.use((req, res, next) => {
   console.log(`Request Received: ${req.method} ${req.originalUrl}`);
