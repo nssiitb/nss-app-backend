@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 
 const loginUser = require("../controllers/login");
 const registerUser = require("../controllers/register");
+const forgotPassword = require("../controllers/forgotPassword");
 const eventsToday = require("../controllers/eventsToday");
 const addEvent = require("../controllers/addEvent");
 const allEvents = require("../controllers/allEvents");
@@ -17,6 +18,7 @@ const attByRoll = require("../controllers/attByRoll");
 
 router.post('/login', loginUser);
 router.post('/register', registerUser);
+router.post('/forgot-password', forgotPassword);
 router.use(auth);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);

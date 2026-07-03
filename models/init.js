@@ -13,6 +13,8 @@ const initDatabase = async () => {
                 dept VARCHAR(3) NOT NULL,
                 email VARCHAR(50) NOT NULL,
                 password VARCHAR(255) NOT NULL,
+                resetToken VARCHAR(255),
+                resetTokenExpiry DATETIME,
                 hours INT NOT NULL DEFAULT 0,
                 fingerprint VARCHAR(255),
                 PRIMARY KEY (roll)
@@ -57,6 +59,8 @@ const initDatabase = async () => {
                 dept VARCHAR(10),
                 email VARCHAR(50) NOT NULL,
                 password VARCHAR(255),
+                resetToken VARCHAR(255),
+                resetTokenExpiry DATETIME,
                 PRIMARY KEY (roll)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         `);
