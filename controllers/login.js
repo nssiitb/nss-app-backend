@@ -73,7 +73,9 @@ const loginUser = async (req, res) => {
         });
       }
     }
-  } catch {
+  } catch(error) {
+    console.log(error);
+    
     return res.status(500).json({
       userData: null,
       message: "Internal Server Error",
