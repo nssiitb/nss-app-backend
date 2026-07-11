@@ -39,9 +39,15 @@ const sendVolunteers = require("../controllers/sendVolunteers");
 const sendHours = require("../controllers/sendHours");
 const sendCalendar = require("../controllers/calendar");
 const attByRoll = require("../controllers/attByRoll");
+const forgotPassword = require("../controllers/forgotPassword");
+const verifyOTP = require("../controllers/verifyOTP");
+const resetPassword = require("../controllers/resetPassword");
 
 router.post('/login', loginLimiter, loginUser);
 router.post('/register', registerLimiter, registerUser);
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-otp", verifyOTP);
+router.post("/reset-password", resetPassword);
 router.use(auth);
 router.post('/logout', logoutUser);
 router.get('/eventsToday', eventsToday);

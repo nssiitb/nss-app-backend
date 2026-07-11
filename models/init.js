@@ -82,6 +82,17 @@ const initDatabase = async () => {
                 _longitude_ VARCHAR(255) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         `);
+    
+    // 6. OTP
+    await db.execute(`
+            CREATE TABLE IF NOT EXISTS otp (
+                roll VARCHAR(10) PRIMARY KEY,
+                otp VARCHAR(6) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                verified TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        `)
 
     console.log("Database tables initialized successfully!");
   } catch (error) {
