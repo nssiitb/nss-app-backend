@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const { randomUUID } = require("crypto");
 
 const db = require("../config/db");
 
@@ -53,7 +54,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { roll: user.roll, isaa: table === "admins" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "7d", jwtid: randomUUID() },
     );
 
     return res.status(200).json({

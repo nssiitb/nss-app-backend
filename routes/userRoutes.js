@@ -5,6 +5,7 @@ const auth = require("../middleware/auth");
 
 const loginUser = require("../controllers/login");
 const registerUser = require("../controllers/register");
+const logoutUser = require("../controllers/logout");
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -42,6 +43,7 @@ const attByRoll = require("../controllers/attByRoll");
 router.post('/login', loginLimiter, loginUser);
 router.post('/register', registerLimiter, registerUser);
 router.use(auth);
+router.post('/logout', logoutUser);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);
 router.get('/allEvents', allEvents);

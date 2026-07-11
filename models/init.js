@@ -61,6 +61,17 @@ const initDatabase = async () => {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         `);
 
+    // Revoked JWTs (used by /logout). Only jti + expiry are stored, so rows
+    // can be cleaned up once past their token's original expiry.
+    await db.execute(`
+            CREATE TABLE IF NOT EXISTS revoked_tokens (
+                jti VARCHAR(36) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                PRIMARY KEY (jti),
+                INDEX idx_expires_at (expires_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        `);
+
     // 5. aa_attendance table
     await db.execute(`
             CREATE TABLE IF NOT EXISTS aa_attendance (
