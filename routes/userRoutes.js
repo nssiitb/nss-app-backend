@@ -1,9 +1,33 @@
 const express = require('express');
+const rateLimit = require("express-rate-limit");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
 const loginUser = require("../controllers/login");
 const registerUser = require("../controllers/register");
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    userData: null,
+    message: "Too many login attempts. Try again in 15 minutes.",
+    status: false,
+  },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: "Too many registration attempts. Try again later.",
+    status: false,
+  },
+});
 const eventsToday = require("../controllers/eventsToday");
 const addEvent = require("../controllers/addEvent");
 const allEvents = require("../controllers/allEvents");
@@ -15,8 +39,8 @@ const sendHours = require("../controllers/sendHours");
 const sendCalendar = require("../controllers/calendar");
 const attByRoll = require("../controllers/attByRoll");
 
-router.post('/login', loginUser);
-router.post('/register', registerUser);
+router.post('/login', loginLimiter, loginUser);
+router.post('/register', registerLimiter, registerUser);
 router.use(auth);
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);

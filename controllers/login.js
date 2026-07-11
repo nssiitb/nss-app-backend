@@ -4,76 +4,66 @@ const bcrypt = require("bcrypt");
 
 const db = require("../config/db");
 
+// Precomputed bcrypt hash of a random string. Used to keep response time
+// constant when the roll doesn't exist, so attackers can't enumerate users
+// via timing differences.
+const DUMMY_HASH =
+  "$2b$10$CwTycUXWue0Thq9StjUM0uJ8p8u.M9c9OQxq9WcU7q3aH3fL8vI2q";
+
 const loginUser = async (req, res) => {
   try {
-    const data = req.body;
-    const isaa = data.isaa;
+    const { roll, password, isaa } = req.body || {};
 
-    console.log(isaa);
-
-    if (!isaa) {
-      table = "users";
-    } else {
-      table = "admins";
-    }
-
-    const [rows] = await db.execute(`SELECT * FROM ${table} WHERE roll = ?`, [
-      data.roll,
-    ]);
-
-    // no user exists
-    if (rows.length == 0) {
+    if (typeof roll !== "string" || typeof password !== "string") {
       return res.status(400).json({
         userData: null,
-        message: "No user exists",
+        message: "Invalid request",
         status: false,
       });
     }
-    // user exists
-    else if (rows.length == 1) {
-      const userPassword = rows[0].password;
 
-      // correct password using bcrypt
-      const passwordMatch = await bcrypt.compare(data.password, userPassword);
+    const table = isaa === true ? "admins" : "users";
 
-      if (passwordMatch) {
-        const userData = {
-          roll: rows[0].roll,
-          name: rows[0].name,
-          mobile: rows[0].mobile,
-          dept: rows[0].dept,
-          email: rows[0].email,
-          isaa: isaa,
-        };
-        // return res.status(201).json({
-        //     userData: userData,
-        //     message: "Login successful",
-        //     status: true
-        // });
-        // JWT FEATURE: create token
-        const token = jwt.sign(
-          { roll: rows[0].roll, isaa: isaa },
-          process.env.JWT_SECRET,
-          { expiresIn: "7d" },
-        );
+    const [rows] = await db.execute(
+      `SELECT * FROM ${table} WHERE roll = ?`,
+      [roll],
+    );
 
-        return res.status(201).json({
-          token: token,
-          userData: userData,
-          message: "Login successful",
-          status: true,
-        });
-      }
-      // wrong password
-      else {
-        return res.status(201).json({
-          userData: null,
-          message: "Wrong password",
-          status: false,
-        });
-      }
+    const user = rows[0];
+    const hashToCompare = user ? user.password : DUMMY_HASH;
+    const passwordMatch = await bcrypt.compare(password, hashToCompare);
+
+    if (!user || !passwordMatch) {
+      return res.status(401).json({
+        userData: null,
+        message: "Invalid credentials",
+        status: false,
+      });
     }
-  } catch {
+
+    const userData = {
+      roll: user.roll,
+      name: user.name,
+      mobile: user.mobile,
+      dept: user.dept,
+      email: user.email,
+      isaa: table === "admins",
+    };
+
+    const token = jwt.sign(
+      { roll: user.roll, isaa: table === "admins" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    return res.status(200).json({
+      token,
+      userData,
+      message: "Login successful",
+      status: true,
+    });
+  } catch (err) {
+    console.error("Login error:", err);
     return res.status(500).json({
       userData: null,
       message: "Internal Server Error",
