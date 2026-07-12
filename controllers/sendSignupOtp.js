@@ -2,25 +2,28 @@ const db = require("../config/db");
 const transporter = require("../config/mail");
 const otpGenerator = require("otp-generator");
 
-const forgotPassword = async (req, res) => {
+const sendSignupOtp = async (req, res) => {
     try {
         const { roll } = req.body;
+        
+        // 🚨 CHECK 1: User already unte block cheyali
         const [users] = await db.execute(
             "SELECT * FROM users WHERE roll = ?",
             [roll]
         );
 
-        if (users.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: "Roll number not found",
+        if (users.length > 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "User already exists! Please Login.",
             });
         }
 
+        // ✅ CHECK 2: User ledu kabatti OTP generate chey
         const otp = otpGenerator.generate(6, {
             digits: true,
             lowerCaseAlphabets: false,
-            upperCaseAlphabets: false,
+            upperCaseAlphabets: false, 
             specialChars: false,
         });
 
@@ -35,9 +38,9 @@ const forgotPassword = async (req, res) => {
 
         await transporter.sendMail({
             from: process.env.EMAIL,
-            to: `${roll}@iitb.ac.in`,
-            subject: "NSS App Password Reset OTP",
-            text: `Your OTP for password reset is ${otp}. This OTP is valid for 5 minutes.`,
+            to: `${roll}@iitb.ac.in`, // Sending to your IITB mail
+            subject: "NSS App Verify Email OTP",
+            text: `Your OTP for NSS App registration is ${otp}. Valid for 5 minutes.`,
         });
 
         res.json({
@@ -46,7 +49,7 @@ const forgotPassword = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("🔥 FATAL OTP ERROR:", error);
+        console.error("🔥 FATAL SIGNUP OTP ERROR:", error);
         res.status(500).json({
             status: 500,
             error: error.message,
@@ -54,4 +57,4 @@ const forgotPassword = async (req, res) => {
     }
 };
 
-exports.forgotPassword = forgotPassword;
+exports.sendSignupOtp = sendSignupOtp;
