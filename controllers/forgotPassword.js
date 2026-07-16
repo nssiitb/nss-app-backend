@@ -4,21 +4,30 @@ const otpGenerator = require("otp-generator");
 
 const forgotPassword = async (req, res) => {
     try {
-        const { roll } = req.body;
+        const { roll, mode } = req.body;
         const [users] = await db.execute(
             "SELECT * FROM users WHERE roll = ?",
             [roll]
         );
 
-        if (users.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: "Roll number not found",
-            });
+        if (mode === "signup") {
+            if (users.length > 0) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User already exists",
+                });
+            }
+        } else {
+            if (users.length === 0) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User not found",
+                });
+            }
         }
 
         const otp = otpGenerator.generate(6, {
-            upperCase: false,
+            upperCaseAlphabets: false,
             lowerCaseAlphabets: false,
             specialChars: false,
             digits: true,

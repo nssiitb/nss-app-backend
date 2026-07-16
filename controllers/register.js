@@ -10,14 +10,13 @@ const EMAIL_POLICY = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const registerUser = async (req, res) => {
   try {
-    const { roll, name, mobile, dept, email, password, fingerprint } =
+    const { roll, name, mobile, email, password, fingerprint } =
       req.body || {};
 
     if (
       typeof roll !== "string" ||
       typeof name !== "string" ||
       typeof mobile !== "string" ||
-      typeof dept !== "string" ||
       typeof email !== "string" ||
       typeof password !== "string"
     ) {
@@ -51,12 +50,6 @@ const registerUser = async (req, res) => {
         status: false,
       });
     }
-    if (dept.length === 0 || dept.length > 3) {
-      return res.status(400).json({
-        message: "Invalid department",
-        status: false,
-      });
-    }
     if (!PASSWORD_POLICY.test(password)) {
       return res.status(400).json({
         message:
@@ -84,7 +77,7 @@ const registerUser = async (req, res) => {
         roll,
         name,
         mobile,
-        dept,
+        null,
         email,
         hashedPassword,
         typeof fingerprint === "string" ? fingerprint : null,
