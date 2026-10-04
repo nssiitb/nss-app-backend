@@ -10,7 +10,7 @@ const EMAIL_POLICY = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const registerUser = async (req, res) => {
   try {
-    const { roll, name, mobile, email, password, fingerprint } =
+    const { roll, name, mobile, dept, email, password, fingerprint } =
       req.body || {};
 
     if (
@@ -77,7 +77,7 @@ const registerUser = async (req, res) => {
         roll,
         name,
         mobile,
-        null,
+        dept || null,
         email,
         hashedPassword,
         typeof fingerprint === "string" ? fingerprint : null,

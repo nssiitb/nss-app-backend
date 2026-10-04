@@ -2,8 +2,9 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 
 const resetPassword = async (req, res) => {
+    console.log("RESET PASSWORD ROUTE HIT");
     try {
-        const { roll, password } = req.body;
+       const { roll, password, is_aa } = req.body;
 
         const [rows] = await db.execute(
             "SELECT * FROM otp WHERE roll = ?",
@@ -19,8 +20,10 @@ const resetPassword = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const tableName = is_aa ? "admins" : "users";
+
         await db.execute(
-            "UPDATE users SET password = ? WHERE roll = ?",
+            `UPDATE ${tableName} SET password = ? WHERE roll = ?`,
             [hashedPassword, roll]
         );
 
@@ -35,6 +38,7 @@ const resetPassword = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("RESET PASSWORD ERROR:", error);
         res.status(500).json({
             status: 500,
             error: error.message,
