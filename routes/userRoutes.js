@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 
 const loginUser = require("../controllers/login");
 const registerUser = require("../controllers/register");
+const forgotPassword = require("../controllers/forgotPassword");
 const eventsToday = require("../controllers/eventsToday");
 const addEvent = require("../controllers/addEvent");
 const allEvents = require("../controllers/allEvents");
@@ -14,10 +15,15 @@ const sendVolunteers = require("../controllers/sendVolunteers");
 const sendHours = require("../controllers/sendHours");
 const sendCalendar = require("../controllers/calendar");
 const attByRoll = require("../controllers/attByRoll");
+const attByDept = require("../controllers/attByDept");
+const attByEvent = require("../controllers/attByEvent"); 
 
 router.post('/login', loginUser);
 router.post('/register', registerUser);
+router.post('/forgot-password', forgotPassword);
+
 router.use(auth);
+
 router.get('/eventsToday', eventsToday);
 router.post('/addEvent', addEvent);
 router.get('/allEvents', allEvents);
@@ -28,5 +34,7 @@ router.get('/sendVolunteers', sendVolunteers);
 router.post('/getHours', sendHours);
 router.get('/calendar', sendCalendar);
 router.post('/attByRoll', attByRoll);
+router.post('/attByDept', attByDept);
+router.post('/attByEvent', attByEvent);
 
 module.exports = router;
