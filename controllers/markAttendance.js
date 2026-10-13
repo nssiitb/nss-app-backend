@@ -66,6 +66,14 @@ const markAttendance = async (req, res) => {
       });
     }
 
+    if (user.fingerprint == "change") {
+      await db.execute(
+        `UPDATE users SET fingerprint = ? WHERE roll = ?`,
+        [_fingerprint_, _roll_]
+      );
+      user.fingerprint = _fingerprint_;
+    }
+
     if (user.fingerprint !== _fingerprint_) {
       return res.status(403).json({
         message:
