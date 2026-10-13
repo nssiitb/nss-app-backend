@@ -25,10 +25,9 @@ const loginUser = async (req, res) => {
 
     const table = isaa === true ? "admins" : "users";
 
-    const [rows] = await db.execute(
-      `SELECT * FROM ${table} WHERE roll = ?`,
-      [roll],
-    );
+    const [rows] = await db.execute(`SELECT * FROM ${table} WHERE roll = ?`, [
+      roll,
+    ]);
 
     const user = rows[0];
     const hashToCompare = user ? user.password : DUMMY_HASH;
@@ -49,10 +48,15 @@ const loginUser = async (req, res) => {
       dept: user.dept,
       email: user.email,
       isaa: table === "admins",
+      isctm: user.is_CTM == 1,
     };
-
+    
     const token = jwt.sign(
-      { roll: user.roll, isaa: table === "admins" },
+      {
+        roll: user.roll,
+        isaa: table === "admins",
+        isctm: user.is_CTM == 1 ? 1 : 0,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d", jwtid: randomUUID() },
     );

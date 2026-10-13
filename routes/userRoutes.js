@@ -8,7 +8,7 @@ const registerUser = require("../controllers/register");
 const logoutUser = require("../controllers/logout");
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 1 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
