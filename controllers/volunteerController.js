@@ -54,4 +54,75 @@ const deleteVolunteer = async (req, res) => {
   }
 };
 
-module.exports = { updateVolunteer, deleteVolunteer };
+const getVolunteerProgress = async (req, res) => {
+  const { roll } = req.params;
+  const targetSem = req.query.sem || 'Autumn-2026';
+
+  try {
+    // 1. Volunteer department fetch cheyali
+    const [userRows] = await db.query(
+      'SELECT dept FROM users WHERE roll = ?', 
+      [roll]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Volunteer profile not found' 
+      });
+    }
+
+    const volunteerDept = userRows[0].dept;
+
+    // 2. Events & Attendance join query
+    const query = `
+      SELECT 
+        e.id AS event_id,
+        e.name AS event_name,
+        DATE_FORMAT(e.date, '%Y-%m-%d') AS date,
+        e.hours,
+        e.department,
+        e.sem,
+        CASE 
+          WHEN a._status_ = 1 OR a.id IS NOT NULL THEN 'PRESENT'
+          ELSE 'ABSENT'
+        END AS status,
+        a._timestamp_ AS attended_at
+      FROM events e
+      LEFT JOIN attendance a 
+        ON e.id = a.event_id AND a._roll_ = ?
+      WHERE e.sem = ?
+        AND (e.department = 'ALL' 
+             OR FIND_IN_SET(?, e.department) > 0 
+             OR e.department = ?)
+      ORDER BY e.date ASC;
+    `;
+
+    const [eventsList] = await db.query(query, [roll, targetSem, volunteerDept, volunteerDept]);
+
+    // 3. Completed hours calculate cheyali
+    const completedHours = eventsList.reduce((sum, item) => {
+      return item.status === 'PRESENT' ? sum + Number(item.hours) : sum;
+    }, 0);
+
+    return res.json({
+      success: true,
+      roll: roll,
+      department: volunteerDept,
+      selectedSem: targetSem,
+      completedHours: completedHours,
+      requiredHours: 40,
+      totalEventsCount: eventsList.length,
+      events: eventsList
+    });
+
+  } catch (error) {
+    console.error('Error fetching volunteer progress:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching attendance history' 
+    });
+  }
+};
+
+module.exports = { updateVolunteer, deleteVolunteer, getVolunteerProgress };

@@ -5,8 +5,7 @@ const userRoutes = require("./routes/userRoutes");
 const initDatabase = require("./models/init");
 const cors = require('cors');
 const app = express();
-const { updateVolunteer, deleteVolunteer } = require('./controllers/volunteerController');
-const authMiddleware = require('./middleware/auth');
+const { updateVolunteer, deleteVolunteer, getVolunteerProgress } = require('./controllers/volunteerController');const authMiddleware = require('./middleware/auth');
 app.use(cors());
 // Trust the first proxy so req.ip and rate-limiting work correctly behind
 // nginx / load balancers that terminate TLS.
@@ -27,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/", userRoutes);
 app.put('/api/volunteers/update', authMiddleware, updateVolunteer);
 app.delete('/api/volunteers/delete/:roll', authMiddleware, deleteVolunteer);
+app.get('/api/volunteers/progress/:roll', getVolunteerProgress);
 
 const PORT = process.env.PORT || 3000;
 
